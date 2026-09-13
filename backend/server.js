@@ -11,7 +11,8 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
 
-app.use('/', urlRoutes, analyticsRoutes);
+app.use('/', urlRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 app.get("/", (req,res)=>{
     res.json({
