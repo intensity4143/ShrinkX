@@ -7,7 +7,7 @@ export default function App() {
   return (
     <>
       <header className="nav">
-        <span className="nav-brand">Snip</span>
+        <span className="nav-brand">ShrinkX</span>
         <nav className="nav-links">
           <NavLink to="/" end className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
             Shortener

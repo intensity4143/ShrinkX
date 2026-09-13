@@ -1,8 +1,9 @@
 const {Kafka} = require("kafkajs");
+const KAFKA_BROKER = process.env.KAFKA_BROKER;
 
 const kafka = new Kafka({
   clientId: 'url-shortner',
-  brokers: ['localhost:9092'],
+  brokers: [KAFKA_BROKER],
 })
 
 const producer = kafka.producer();

@@ -1,3 +1,5 @@
+ShrinkX — Distributed URL Shortener & Analytics Platform
+
 <!-- At 200 concurrent VUs, Redis caching increased redirect throughput from ~5.7K RPS to ~8.4K RPS (~48% improvement), while reducing average latency from 35.1 ms to 23.7 ms and p95 latency from 44.0 ms to 33.8 ms, with 0% errors in both tests. -->
 
                      PostgreSQL
