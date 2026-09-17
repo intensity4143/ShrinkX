@@ -15,3 +15,57 @@ ShrinkX — Distributed URL Shortener & Analytics Platform
                     ~8.4K RPS
 
 <!-- "I first benchmarked the redirect path against PostgreSQL. Under 200 VUs, I observed roughly 5.7K RPS. I introduced Redis using a cache-aside strategy for the short-code-to-original-URL mapping. With the same load, throughput increased to roughly 8.4K RPS and p95 latency dropped from about 44 ms to 34 ms." -->
+
+
+Frontend
+   │
+   │ Generate short URL
+   ▼
+Express API
+   │
+   ├── PostgreSQL → URL data
+   └── Redis → caching
+       
+User visits short URL
+   │
+   ▼
+Redirect controller
+   │
+   └── Kafka Producer
+          │
+          ▼
+   analytics-events
+          │
+          ▼
+   Kafka Consumer
+          │
+          ▼
+   analytics_events (PostgreSQL)
+          │
+          ▼
+   Analytics API
+          │
+          ▼
+      Frontend
+
+
+
+
+
+      Generate URL
+     ↓
+PostgreSQL + Redis
+     ↓
+Short URL
+     ↓
+Redirect
+     ↓
+Redis
+     ↓
+Kafka event
+     ↓
+Consumer
+     ↓
+analytics_events
+     ↓
+Analytics dashboard
