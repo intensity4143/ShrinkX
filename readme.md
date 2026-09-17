@@ -69,3 +69,25 @@ Consumer
 analytics_events
      ↓
 Analytics dashboard
+                         ┌──────────────┐
+                         │   Frontend   │
+                         └──────┬───────┘
+                                │
+                                ▼
+                         ┌──────────────┐
+                         │   Backend    │
+                         │  Node/Express│
+                         └──┬───┬───┬───┘
+                            │   │   │
+                ┌───────────┘   │   └───────────┐
+                ▼               ▼               ▼
+          PostgreSQL          Redis           Kafka
+                ▲                               │
+                │                               ▼
+                │                    ┌──────────────────┐
+                └────────────────────│ Analytics Consumer│
+                                     └──────────────────┘
+
+
+<!-- And if you change your Dockerfile or dependencies: -->
+docker compose up -d --build

@@ -1,9 +1,11 @@
 const { Kafka } = require("kafkajs");
 const { insertAnalyticsEvent } = require("../repository/urlRepository");
 
+const KAFKA_BROKER = process.env.KAFKA_BROKER;
+
 const kafka = new Kafka({
     clientId: "analytics-consumer",
-    brokers: ["localhost:9092"]
+    brokers: [KAFKA_BROKER]
 });
 
 const consumer = kafka.consumer({ groupId: 'analytics-group' })
