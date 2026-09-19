@@ -1,9 +1,14 @@
+import { useRef } from "react";
 import { NavLink, Route, Routes } from "react-router-dom";
 import Shortener from "./pages/Shortener";
 import Analytics from "./pages/Analytics";
 import "./App.css";
 
 export default function App() {
+  // Persists across Analytics unmount/remount; plain object so writes never
+  // trigger a re-render of App itself.
+  const analyticsCache = useRef({});
+
   return (
     <>
       <header className="nav">
@@ -21,7 +26,7 @@ export default function App() {
       <main className="main-content">
         <Routes>
           <Route path="/" element={<Shortener />} />
-          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/analytics" element={<Analytics cache={analyticsCache} />} />
         </Routes>
       </main>
     </>

@@ -47,6 +47,16 @@ const getNextId = async () => {
 
 const insertAnalyticsEvent = async (shortCode, timestamp) =>{
 
+    const dbInfo = await pool.query(`
+    SELECT
+        current_database(),
+        current_user,
+        inet_server_addr(),
+        inet_server_port()
+`);
+
+console.log("CONSUMER DB:", dbInfo.rows[0]);
+
     console.log("inserting into db..")
     const result = await pool.query(
         `INSERT into analytics_events (short_code, visited_at)

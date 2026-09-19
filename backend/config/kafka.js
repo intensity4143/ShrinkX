@@ -1,19 +1,38 @@
-const {Kafka} = require("kafkajs");
-const KAFKA_BROKER = process.env.KAFKA_BROKER;
+const { Kafka } = require("kafkajs");
+const fs = require("fs");
 
-const kafka = new Kafka({
-  clientId: 'url-shortner',
-  brokers: [KAFKA_BROKER],
-})
+const kafkaConfig = {
+    clientId: "url-shortner",
+    brokers: [process.env.KAFKA_BROKER]
+};
+
+if (process.env.KAFKA_USERNAME && process.env.KAFKA_PASSWORD) {
+    kafkaConfig.ssl = {
+        ca: [
+            fs.readFileSync(
+                process.env.KAFKA_CA_PATH || "./certs/aiven-ca.pem",
+                "utf-8"
+            )
+        ]
+    };
+
+    kafkaConfig.sasl = {
+        mechanism: "scram-sha-256",
+        username: process.env.KAFKA_USERNAME,
+        password: process.env.KAFKA_PASSWORD
+    };
+}
+
+const kafka = new Kafka(kafkaConfig);
 
 const producer = kafka.producer();
 
-const connectProducer = async() => {
+const connectProducer = async () => {
     await producer.connect();
     console.log("connected to kafka");
-}
+};
 
-module.exports = {
-    producer,
-    connectProducer,
+module.exports = { 
+    producer, 
+    connectProducer 
 };

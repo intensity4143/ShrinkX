@@ -28,17 +28,33 @@ function timeAgo(dateStr) {
 
 // ── Data fetching hook ────────────────────────────────────────────────────────
 
-function useData(fetcher) {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+// cache: a ref to a plain object { [key]: data }
+// key:   string identifying this fetcher in the cache
+// If cached data exists, start with it (no loading flash) and refresh in background.
+function useData(fetcher, cache, key) {
+  const cached = cache?.current[key] ?? null;
+  const [data, setData] = useState(cached);
+  const [loading, setLoading] = useState(cached === null);
   const [error, setError] = useState("");
   const fetcherRef = useRef(fetcher);
 
   useEffect(() => {
+    let cancelled = false;
     fetcherRef.current()
-      .then(setData)
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false));
+      .then((result) => {
+        if (cancelled) return;
+        if (cache) cache.current[key] = result;
+        setData(result);
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        // Only surface the error if we have nothing cached to show
+        if (!cache?.current[key]) setError(e.message);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
   }, []);
 
   return { data, loading, error };
@@ -64,8 +80,8 @@ function StateBlock({ loading, error, empty, children }) {
 
 // ── Global sections ───────────────────────────────────────────────────────────
 
-function Overview() {
-  const { data, loading, error } = useData(fetchOverview);
+function Overview({ cache }) {
+  const { data, loading, error } = useData(fetchOverview, cache, "overview");
   const stats = data
     ? [
         { label: "Total URLs", value: data.totalUrls },
@@ -91,8 +107,8 @@ function Overview() {
   );
 }
 
-function ClicksChart() {
-  const { data, loading, error } = useData(fetchClicksOverTime);
+function ClicksChart({ cache }) {
+  const { data, loading, error } = useData(fetchClicksOverTime, cache, "clicksOverTime");
   const empty = data && data.length === 0;
 
   const formatted = data?.map((d) => ({
@@ -149,8 +165,8 @@ function ClicksChart() {
   );
 }
 
-function TopUrls() {
-  const { data, loading, error } = useData(fetchTopUrls);
+function TopUrls({ cache }) {
+  const { data, loading, error } = useData(fetchTopUrls, cache, "topUrls");
   const empty = data && data.length === 0;
 
   return (
@@ -195,8 +211,8 @@ function TopUrls() {
   );
 }
 
-function RecentActivity() {
-  const { data, loading, error } = useData(fetchRecentActivity);
+function RecentActivity({ cache }) {
+  const { data, loading, error } = useData(fetchRecentActivity, cache, "recentActivity");
   const empty = data && data.length === 0;
 
   return (
@@ -283,7 +299,7 @@ function UrlOverview({ shortCode, onClear }) {
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
-export default function Analytics() {
+export default function Analytics({ cache }) {
   const [input, setInput] = useState("");
   const [activeCode, setActiveCode] = useState("");
 
@@ -320,10 +336,10 @@ export default function Analytics() {
         <UrlOverview key={activeCode} shortCode={activeCode} onClear={handleClear} />
       ) : (
         <>
-          <Overview />
-          <ClicksChart />
-          <TopUrls />
-          <RecentActivity />
+          <Overview cache={cache} />
+          <ClicksChart cache={cache} />
+          <TopUrls cache={cache} />
+          <RecentActivity cache={cache} />
         </>
       )}
     </div>
