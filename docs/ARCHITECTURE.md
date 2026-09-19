@@ -38,6 +38,79 @@ testing.
 
 ------------------------------------------------------------------------
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Tech Stack](#tech-stack)
+- [High-Level Architecture](#high-level-architecture)
+- [Core Request Flow](#core-request-flow)
+- [Redis Caching](#redis-caching)
+- [Rate Limiting](#rate-limiting)
+- [PostgreSQL](#postgresql)
+- [Base62 Encoding](#base62-encoding)
+- [Kafka Analytics Pipeline](#kafka-analytics-pipeline)
+- [Analytics APIs](#analytics-apis)
+- [Backend Architecture](#backend-architecture)
+- [Folder Structure](#folder-structure)
+- [Docker](#docker)
+- [Cloud Deployment](#cloud-deployment)
+- [Performance Testing](#performance-testing)
+- [Failure Testing](#failure-testing)
+- [Resilience Model](#resilience-model)
+- [Design Trade-offs](#important-design-trade-offs)
+- [Security](#security-considerations)
+- [Observability](#observability)
+- [Local Development](#local-development)
+- [Future Improvements](#future-improvements)
+
+# Overview
+
+ShrinkX provides two primary operations:
+
+1. Convert a long URL into a compact short code.
+2. Redirect a short code to its original URL.
+
+The system also records redirect activity asynchronously and exposes analytics through a dedicated API.
+
+The architecture is intentionally designed around the difference between the **latency-sensitive redirect path** and the **asynchronous analytics path**.
+
+The core system consists of:
+
+```text
+                    ┌───────────────────┐
+                    │      Browser      │
+                    └─────────┬─────────┘
+                              │
+                              ▼
+                    ┌───────────────────┐
+                    │ React + Vite      │
+                    │    Frontend       │
+                    └─────────┬─────────┘
+                              │ REST
+                              ▼
+                    ┌───────────────────┐
+                    │ Node.js + Express │
+                    │      Backend      │
+                    └─────────┬─────────┘
+                              │
+               ┌──────────────┼──────────────┐
+               │              │              │
+               ▼              ▼              ▼
+           ┌───────┐     ┌───────────┐   ┌─────────┐
+           │ Redis │     │PostgreSQL │   │  Kafka  │
+           └───────┘     └───────────┘   └────┬────┘
+                                               │
+                                               ▼
+                                         ┌──────────┐
+                                         │ Consumer │
+                                         └────┬─────┘
+                                              │
+                                              ▼
+                                         PostgreSQL
+```
+
+---
+
 # Tech Stack
 
 ## Frontend
