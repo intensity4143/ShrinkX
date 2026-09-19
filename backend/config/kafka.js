@@ -7,13 +7,15 @@ const kafkaConfig = {
 };
 
 if (process.env.KAFKA_USERNAME && process.env.KAFKA_PASSWORD) {
+    const caPath =
+        process.env.KAFKA_CA_PATH || "./certs/aiven-ca.pem";
+
+    if (!fs.existsSync(caPath)) {
+        throw new Error(`Kafka CA certificate not found at: ${caPath}`);
+    }
+
     kafkaConfig.ssl = {
-        ca: [
-            fs.readFileSync(
-                process.env.KAFKA_CA_PATH || "./certs/aiven-ca.pem",
-                "utf-8"
-            )
-        ]
+        ca: [fs.readFileSync(caPath, "utf-8")]
     };
 
     kafkaConfig.sasl = {
@@ -32,7 +34,7 @@ const connectProducer = async () => {
     console.log("connected to kafka");
 };
 
-module.exports = { 
-    producer, 
-    connectProducer 
+module.exports = {
+    producer,
+    connectProducer
 };

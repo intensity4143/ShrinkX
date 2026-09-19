@@ -8,13 +8,14 @@ const kafkaConfig = {
 };
 
 if (process.env.KAFKA_USERNAME && process.env.KAFKA_PASSWORD) {
+    const caPath = process.env.KAFKA_CA_PATH || "./certs/aiven-ca.pem";
+
+    if (!fs.existsSync(caPath)) {
+        throw new Error(`Kafka CA certificate not found at: ${caPath}`);
+    }
+
     kafkaConfig.ssl = {
-        ca: [
-            fs.readFileSync(
-                process.env.KAFKA_CA_PATH || "./certs/aiven-ca.pem",
-                "utf-8"
-            )
-        ]
+        ca: [fs.readFileSync(caPath, "utf-8")]
     };
 
     kafkaConfig.sasl = {
@@ -26,28 +27,39 @@ if (process.env.KAFKA_USERNAME && process.env.KAFKA_PASSWORD) {
 
 const kafka = new Kafka(kafkaConfig);
 
-const consumer = kafka.consumer({ groupId: 'analytics-group' })
+const consumer = kafka.consumer({
+    groupId: "analytics-group"
+});
 
-const startConsumer = async() =>{
-    await consumer.connect()
-    
+const startConsumer = async () => {
+    await consumer.connect();
+
     await consumer.subscribe({
-        topic: 'analytics-events', 
-        fromBeginning: false 
-    })
+        topic: "analytics-events",
+        fromBeginning: false
+    });
 
-    console.log("consumer connected to kafka")
+    console.log("consumer connected to kafka");
 
     await consumer.run({
-    eachMessage: async ({ topic, partition, message }) => {
-        const event = JSON.parse(message.value.toString());
-        await insertAnalyticsEvent(event.shortCode, event.timestamp);
+        eachMessage: async ({ message }) => {
+            try {
+                const event = JSON.parse(message.value.toString());
 
-        console.log("Analytics event consumed", event)
-    },
-    })
-}
+                await insertAnalyticsEvent(
+                    event.shortCode,
+                    event.timestamp
+                );
+
+                console.log("Analytics event consumed", event);
+            } 
+            catch (error) {
+                console.error("Failed to process analytics event:", error);
+            }
+        }
+    });
+};
 
 module.exports = {
     startConsumer
-}   
+};
