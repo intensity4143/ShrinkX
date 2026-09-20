@@ -1,4 +1,3 @@
-const { get } = require("mongoose");
 const analyticsService = require("../services/analyticsService");
 
 const getAnalytics = async (req, res) =>{
