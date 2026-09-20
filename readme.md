@@ -1,4 +1,5 @@
 # ShrinkX — Distributed URL Shortener & Analytics Platform
+LIVE LINK -> https://shrinkx-sigma.vercel.app
 
 > A production-oriented URL shortener built to learn **scalable backend architecture, caching, event-driven systems, performance engineering, failure handling, and cloud deployment**.
 
