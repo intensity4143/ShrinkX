@@ -24,6 +24,11 @@ app.get("/", (req,res)=>{
         message: "welcome to backend server"
     });
 })
+app.get("/api/health", (req,res)=>{
+    res.json({
+        message: "server is healthy..."
+    });
+})
 
 const startServer = async () => {
     try {
