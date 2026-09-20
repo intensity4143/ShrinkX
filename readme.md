@@ -1,4 +1,4 @@
-# LLIVE LINK -> https://shrinkx-sigma.vercel.app
+LIVE LINK -> https://shrinkx-sigma.vercel.app
 
 # ShrinkX — Distributed URL Shortener & Analytics Platform
 
