@@ -101,7 +101,7 @@ flowchart LR
 
 ShrinkX supports two local development modes:
 
-- **Docker Mode** — runs the complete application stack using Docker Compose.
+- **Docker Mode** — runs the complete application stack using Docker Compose (Frontend needs to be started separately)
 - **Hybrid Mode** — runs PostgreSQL, Redis, and Kafka in Docker while the backend and consumer run locally.
 
 ## Prerequisites
@@ -560,7 +560,7 @@ The database-generated ID provides uniqueness without requiring random-code coll
 # Project Structure
 
 ```text
-url_shortener/
+shrinkX/
 │
 ├── backend/
 │   ├── certs/
@@ -855,7 +855,7 @@ GitHub: [@intensity4143](https://github.com/intensity4143)
 
 # Repository
 
-[github.com/intensity4143/url_shortener](https://github.com/intensity4143/url_shortener)
+[github.com/intensity4143/shrinkX](https://github.com/intensity4143/shrinkX)
 
 ---
 
