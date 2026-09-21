@@ -6,7 +6,7 @@ const urlRoutes = require("./routes/urlRoutes")
 const analyticsRoutes = require("./routes/analyticsRoutes")
 const {connectRedis } = require("./config/redis")
 const {connectProducer} = require("./config/kafka");
-const {startConsumer} = require("./kafka/consumer")    // only for render
+const {startConsumer} = require("./kafka/consumer")    // only for render----------------------------------
 const cors = require("cors");
 
 app.use(cors({
@@ -36,7 +36,7 @@ const startServer = async () => {
         await connectDatabase();
         await connectRedis();
         await connectProducer();
-        await startConsumer();  // only for render
+        await startConsumer();  // only for render--------------------------------------------------------
         
         app.listen(PORT, "0.0.0.0", () => {
             console.log(`server started at port ${PORT}`);

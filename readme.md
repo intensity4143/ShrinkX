@@ -98,44 +98,58 @@ flowchart LR
 
 # Run Locally
 
-## Prerequisites
+ShrinkX supports two local development modes:
 
-Make sure you have:
+- **Docker Mode** — runs the complete application stack using Docker Compose.
+- **Hybrid Mode** — runs PostgreSQL, Redis, and Kafka in Docker while the backend and consumer run locally.
+
+## Prerequisites
 
 - Node.js
 - npm
 - Docker Desktop
 - Git
-- k6 - only required for load testing
+- k6 — only required for load testing
 
 ---
 
-## 1. Clone the repository
+## 1. Clone the Repository
 
 ```bash
-git clone https://github.com/intensity4143/url_shortener.git
-cd url_shortener
+git clone https://github.com/intensity4143/ShrinkX.git
+cd ShrinkX
 ```
 
 ---
 
-## 2. Start local infrastructure
+## Option A — Full Docker Setup
 
-From the project root:
+Docker Compose runs the complete application stack, including the backend and Kafka consumer.
+
+### Start the stack
 
 ```bash
-docker compose up -d
+docker compose up -d --build
 ```
 
-Check the running containers:
+This starts the application infrastructure and services defined in `docker-compose.yml`.
+
+Check the containers:
 
 ```bash
 docker ps
 ```
 
-The Docker setup is used for the local infrastructure required by the application.
+No manual `node server.js` or `node consumer.js` commands are required.
 
-To stop the infrastructure:
+### View logs
+
+```bash
+docker logs -f shrinkx-backend
+docker logs -f shrinkx-analytics-consumer
+```
+
+### Stop the stack
 
 ```bash
 docker compose down
@@ -143,42 +157,65 @@ docker compose down
 
 ---
 
-## 3. Configure the backend
+## Option B — Hybrid Setup
+
+Docker runs only PostgreSQL, Redis, and Kafka. The backend and Kafka consumer run directly on your machine.
+
+### Start infrastructure
+
+From the project root:
+
+```bash
+docker compose up -d postgres redis kafka
+```
+
+Verify the running containers:
+
+```bash
+docker ps
+```
+
+You should see the PostgreSQL, Redis, and Kafka containers running.
+
+### Configure the backend
 
 ```bash
 cd backend
 npm install
 ```
 
-Create a `.env` file from `.env.example` and configure the required PostgreSQL, Redis, and Kafka variables.
+Create a `.env` file using `.env.example` and configure the required environment variables.
 
-For local Aiven Kafka usage, the CA certificate should be available at the path configured by:
+For local Kafka:
 
 ```env
+KAFKA_BROKER=localhost:29092
+```
+
+For Aiven Kafka:
+
+```env
+KAFKA_BROKER=<aiven-broker>
+KAFKA_USERNAME=avnadmin
+KAFKA_PASSWORD=<password>
 KAFKA_CA_PATH=./certs/aiven-ca.pem
 ```
 
-**Never commit real credentials or certificates to Git.**
+> Never commit real credentials or certificates to the repository.
 
----
-
-## 4. Start the backend
+### Start the backend
 
 ```bash
 node server.js
 ```
 
-The backend uses:
+Backend:
 
 ```text
 http://localhost:5000
 ```
 
-when running with the project's local configuration.
-
----
-
-## 5. Start the Kafka consumer
+### Start the Kafka consumer
 
 Open another terminal:
 
@@ -187,11 +224,7 @@ cd backend
 node consumer.js
 ```
 
-The consumer listens to the Kafka `analytics-events` topic and persists analytics events into PostgreSQL.
-
----
-
-## 6. Start the frontend
+### Start the frontend
 
 Open another terminal:
 
@@ -201,13 +234,20 @@ npm install
 npm run dev
 ```
 
-Vite will display the local frontend URL, normally:
+Frontend:
 
 ```text
 http://localhost:5173
 ```
 
----
+### Stop the hybrid setup
+
+Stop the Node.js processes with `Ctrl + C`, then run:
+
+```bash
+docker compose down
+```
+````
 
 # Core API
 
