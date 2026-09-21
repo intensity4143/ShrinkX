@@ -96,6 +96,7 @@ flowchart LR
 
 ---
 
+````
 # Run Locally
 
 ShrinkX supports two local development modes:
@@ -248,6 +249,9 @@ Stop the Node.js processes with `Ctrl + C`, then run:
 docker compose down
 ```
 ````
+
+
+---
 
 # Core API
 
